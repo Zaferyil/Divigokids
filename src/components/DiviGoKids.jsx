@@ -281,7 +281,9 @@ const DiviGoKids = () => {
   }, [stageStars]);
 
   const startStage = (stage) => {
+    console.log('startStage called with stage:', stage, 'level:', currentLevel);
     const qs = generateQuestions(stage, currentLevel);
+    console.log('Generated questions:', qs.length, qs);
     setQuestions(qs);
     setCurrentStage(stage);
     setCurrentQuestion(0);
