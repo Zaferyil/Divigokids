@@ -622,7 +622,14 @@ const DiviGoKids = () => {
   }
 
   // Quiz Screen
-  if (currentScreen === 'quiz' && questions.length > 0) {
+  if (currentScreen === 'quiz') {
+    if (questions.length === 0) {
+      return (
+        <div className="min-h-screen bg-gradient-to-b from-purple-300 to-pink-200 flex items-center justify-center">
+          <div className="text-2xl text-white">Laden...</div>
+        </div>
+      );
+    }
     const q = questions[currentQuestion];
 
     return (
