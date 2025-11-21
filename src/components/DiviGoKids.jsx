@@ -281,7 +281,9 @@ const DiviGoKids = () => {
   }, [stageStars]);
 
   const startStage = (stage) => {
+    console.log('startStage called with stage:', stage, 'level:', currentLevel);
     const qs = generateQuestions(stage, currentLevel);
+    console.log('Generated questions:', qs.length, qs);
     setQuestions(qs);
     setCurrentStage(stage);
     setCurrentQuestion(0);
@@ -622,7 +624,14 @@ const DiviGoKids = () => {
   }
 
   // Quiz Screen
-  if (currentScreen === 'quiz' && questions.length > 0) {
+  if (currentScreen === 'quiz') {
+    if (questions.length === 0) {
+      return (
+        <div className="min-h-screen bg-gradient-to-b from-purple-300 to-pink-200 flex items-center justify-center">
+          <div className="text-2xl text-white">Laden...</div>
+        </div>
+      );
+    }
     const q = questions[currentQuestion];
 
     return (
