@@ -520,6 +520,7 @@ const DiviGoKids = () => {
                 <button
                   key={i}
                   onClick={() => {
+                    console.log('Button clicked! Stage:', stageNum);
                     playSound('click');
                     startStage(stageNum);
                   }}
