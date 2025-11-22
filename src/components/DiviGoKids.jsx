@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Check, X, Star, ArrowLeft, ArrowRight, Volume2 } from 'lucide-react';
 
 // Animasyon stilleri
@@ -220,6 +220,7 @@ const DiviGoKids = () => {
   const [stageStars, setStageStars] = useState({});
   const [showConfetti, setShowConfetti] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
+  const timeoutRef = useRef(null);
 
   // Ses efektleri çalma
   const playSound = (type) => {
@@ -281,6 +282,12 @@ const DiviGoKids = () => {
   }, [stageStars]);
 
   const startStage = (stage) => {
+    // Clear any pending timeout from previous quiz
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+
     console.log('startStage called with stage:', stage, 'level:', currentLevel);
     const qs = generateQuestions(stage, currentLevel);
     console.log('Generated questions:', qs.length, qs);
@@ -308,7 +315,7 @@ const DiviGoKids = () => {
       playSound('wrong');
     }
 
-    setTimeout(() => {
+    timeoutRef.current = setTimeout(() => {
       if (currentQuestion < 9) {
         setCurrentQuestion(currentQuestion + 1);
         setSelectedAnswer(null);
