@@ -73,141 +73,6 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
-// Export generateQuestions for testing
-export const generateQuestions = (stage, level) => {
-  const qs = [];
-
-  if (level === 1) {
-    // Level 1: Basit bölme işlemleri
-    const divisor = stage <= 6 ? stage + 1 : stage - 1; // 2-10 arası bölenler
-
-    for (let i = 0; i < 10; i++) {
-      const correctAnswer = Math.floor(Math.random() * 10) + 1;
-      const dividend = divisor * correctAnswer; // Tam bölünebilir sayı
-      const wrongAnswers = [];
-
-      while (wrongAnswers.length < 3) {
-        const wrong = correctAnswer + Math.floor(Math.random() * 6) - 3;
-        if (wrong > 0 && wrong !== correctAnswer && !wrongAnswers.includes(wrong)) {
-          wrongAnswers.push(wrong);
-        }
-      }
-
-      const answers = [correctAnswer, ...wrongAnswers].sort(() => Math.random() - 0.5);
-
-      qs.push({
-        dividend,
-        divisor,
-        correctAnswer,
-        answers
-      });
-    }
-  } else if (level === 2) {
-    // Level 2: İki basamaklı sayıları bölme
-    for (let i = 0; i < 10; i++) {
-      let divisor, correctAnswer;
-
-      if (stage <= 6) {
-        divisor = Math.floor(Math.random() * 4) + 2; // 2-5 arası bölen
-        correctAnswer = Math.floor(Math.random() * 15) + 5; // 5-19 arası sonuç
-      } else {
-        divisor = Math.floor(Math.random() * 4) + 6; // 6-9 arası bölen
-        correctAnswer = Math.floor(Math.random() * 10) + 10; // 10-19 arası sonuç
-      }
-
-      const dividend = divisor * correctAnswer;
-      const wrongAnswers = [];
-
-      while (wrongAnswers.length < 3) {
-        const wrong = correctAnswer + Math.floor(Math.random() * 8) - 4;
-        if (wrong > 0 && wrong !== correctAnswer && !wrongAnswers.includes(wrong)) {
-          wrongAnswers.push(wrong);
-        }
-      }
-
-      const answers = [correctAnswer, ...wrongAnswers].sort(() => Math.random() - 0.5);
-
-      qs.push({
-        dividend,
-        divisor,
-        correctAnswer,
-        answers
-      });
-    }
-  } else if (level === 3) {
-    // Level 3: Üç basamaklı sayıları bölme
-    for (let i = 0; i < 10; i++) {
-      let divisor, correctAnswer;
-
-      if (stage <= 6) {
-        divisor = Math.floor(Math.random() * 4) + 2; // 2-5 arası bölen
-        correctAnswer = Math.floor(Math.random() * 50) + 20; // 20-69 arası sonuç
-      } else {
-        divisor = Math.floor(Math.random() * 4) + 6; // 6-9 arası bölen
-        correctAnswer = Math.floor(Math.random() * 50) + 50; // 50-99 arası sonuç
-      }
-
-      const dividend = divisor * correctAnswer;
-      const wrongAnswers = [];
-
-      while (wrongAnswers.length < 3) {
-        const wrong = correctAnswer + Math.floor(Math.random() * 20) - 10;
-        if (wrong > 0 && wrong !== correctAnswer && !wrongAnswers.includes(wrong)) {
-          wrongAnswers.push(wrong);
-        }
-      }
-
-      const answers = [correctAnswer, ...wrongAnswers].sort(() => Math.random() - 0.5);
-
-      qs.push({
-        dividend,
-        divisor,
-        correctAnswer,
-        answers
-      });
-    }
-  } else if (level === 4) {
-    // Level 4: Karışık zorlukta bölme işlemleri
-    for (let i = 0; i < 10; i++) {
-      let divisor, correctAnswer;
-
-      if (stage <= 6) {
-        divisor = Math.floor(Math.random() * 8) + 11; // 11-18 arası bölen
-        correctAnswer = Math.floor(Math.random() * 20) + 10; // 10-29 arası sonuç
-      } else {
-        divisor = Math.floor(Math.random() * 10) + 11; // 11-20 arası bölen
-        correctAnswer = Math.floor(Math.random() * 30) + 20; // 20-49 arası sonuç
-      }
-
-      const dividend = divisor * correctAnswer;
-      const wrongAnswers = [];
-
-      while (wrongAnswers.length < 3) {
-        const wrong = correctAnswer + Math.floor(Math.random() * 16) - 8;
-        if (wrong > 0 && wrong !== correctAnswer && !wrongAnswers.includes(wrong)) {
-          wrongAnswers.push(wrong);
-        }
-      }
-
-      const answers = [correctAnswer, ...wrongAnswers].sort(() => Math.random() - 0.5);
-
-      qs.push({
-        dividend,
-        divisor,
-        correctAnswer,
-        answers
-      });
-    }
-  }
-
-  return qs;
-};
-
-// Export star calculation for testing
-export const calculateStars = (score) => {
-  return score >= 9 ? 3 : score >= 7 ? 2 : score >= 5 ? 1 : 0;
-};
-
 const DiviGoKids = () => {
   const [currentScreen, setCurrentScreen] = useState('home');
   const [currentLevel, setCurrentLevel] = useState(1);
@@ -265,6 +130,177 @@ const DiviGoKids = () => {
     }
   };
 
+  // Bölme soruları üretme (sonuç her zaman tam sayı)
+  const generateQuestions = (stage, level) => {
+    const qs = [];
+
+    if (level === 1) {
+      // Level 1: Basit bölme işlemleri
+      const divisor = stage <= 6 ? stage + 1 : stage - 1; // 2-10 arası bölenler
+
+      for (let i = 0; i < 10; i++) {
+        const correctAnswer = Math.floor(Math.random() * 10) + 1;
+        const dividend = divisor * correctAnswer; // Tam bölünebilir sayı
+        const wrongAnswers = [];
+
+        let attempts = 0;
+        while (wrongAnswers.length < 3 && attempts < 50) {
+          attempts++;
+          const wrong = correctAnswer + Math.floor(Math.random() * 10) - 5;
+          if (wrong > 0 && wrong !== correctAnswer && !wrongAnswers.includes(wrong)) {
+            wrongAnswers.push(wrong);
+          }
+        }
+
+        // Yeterli yanlış cevap bulunamadıysa, manuel olarak ekle
+        while (wrongAnswers.length < 3) {
+          const fallback = wrongAnswers.length === 0 ? correctAnswer + 1 :
+                          wrongAnswers.length === 1 ? correctAnswer + 2 : correctAnswer - 1;
+          if (fallback > 0 && fallback !== correctAnswer && !wrongAnswers.includes(fallback)) {
+            wrongAnswers.push(fallback);
+          }
+        }
+
+        const answers = [correctAnswer, ...wrongAnswers].sort(() => Math.random() - 0.5);
+
+        qs.push({
+          dividend,
+          divisor,
+          correctAnswer,
+          answers
+        });
+      }
+    } else if (level === 2) {
+      // Level 2: İki basamaklı sayıları bölme
+      for (let i = 0; i < 10; i++) {
+        let divisor, correctAnswer;
+
+        if (stage <= 6) {
+          divisor = Math.floor(Math.random() * 4) + 2; // 2-5 arası bölen
+          correctAnswer = Math.floor(Math.random() * 15) + 5; // 5-19 arası sonuç
+        } else {
+          divisor = Math.floor(Math.random() * 4) + 6; // 6-9 arası bölen
+          correctAnswer = Math.floor(Math.random() * 10) + 10; // 10-19 arası sonuç
+        }
+
+        const dividend = divisor * correctAnswer;
+        const wrongAnswers = [];
+
+        let attempts = 0;
+        while (wrongAnswers.length < 3 && attempts < 50) {
+          attempts++;
+          const wrong = correctAnswer + Math.floor(Math.random() * 12) - 6;
+          if (wrong > 0 && wrong !== correctAnswer && !wrongAnswers.includes(wrong)) {
+            wrongAnswers.push(wrong);
+          }
+        }
+
+        while (wrongAnswers.length < 3) {
+          const fallback = wrongAnswers.length === 0 ? correctAnswer + 1 :
+                          wrongAnswers.length === 1 ? correctAnswer + 2 : correctAnswer - 1;
+          if (fallback > 0 && fallback !== correctAnswer && !wrongAnswers.includes(fallback)) {
+            wrongAnswers.push(fallback);
+          }
+        }
+
+        const answers = [correctAnswer, ...wrongAnswers].sort(() => Math.random() - 0.5);
+
+        qs.push({
+          dividend,
+          divisor,
+          correctAnswer,
+          answers
+        });
+      }
+    } else if (level === 3) {
+      // Level 3: Üç basamaklı sayıları bölme
+      for (let i = 0; i < 10; i++) {
+        let divisor, correctAnswer;
+
+        if (stage <= 6) {
+          divisor = Math.floor(Math.random() * 4) + 2; // 2-5 arası bölen
+          correctAnswer = Math.floor(Math.random() * 50) + 20; // 20-69 arası sonuç
+        } else {
+          divisor = Math.floor(Math.random() * 4) + 6; // 6-9 arası bölen
+          correctAnswer = Math.floor(Math.random() * 50) + 50; // 50-99 arası sonuç
+        }
+
+        const dividend = divisor * correctAnswer;
+        const wrongAnswers = [];
+
+        let attempts = 0;
+        while (wrongAnswers.length < 3 && attempts < 50) {
+          attempts++;
+          const wrong = correctAnswer + Math.floor(Math.random() * 20) - 10;
+          if (wrong > 0 && wrong !== correctAnswer && !wrongAnswers.includes(wrong)) {
+            wrongAnswers.push(wrong);
+          }
+        }
+
+        while (wrongAnswers.length < 3) {
+          const fallback = wrongAnswers.length === 0 ? correctAnswer + 3 :
+                          wrongAnswers.length === 1 ? correctAnswer + 5 : correctAnswer - 3;
+          if (fallback > 0 && fallback !== correctAnswer && !wrongAnswers.includes(fallback)) {
+            wrongAnswers.push(fallback);
+          }
+        }
+
+        const answers = [correctAnswer, ...wrongAnswers].sort(() => Math.random() - 0.5);
+
+        qs.push({
+          dividend,
+          divisor,
+          correctAnswer,
+          answers
+        });
+      }
+    } else if (level === 4) {
+      // Level 4: Karışık zorlukta bölme işlemleri
+      for (let i = 0; i < 10; i++) {
+        let divisor, correctAnswer;
+
+        if (stage <= 6) {
+          divisor = Math.floor(Math.random() * 8) + 11; // 11-18 arası bölen
+          correctAnswer = Math.floor(Math.random() * 20) + 10; // 10-29 arası sonuç
+        } else {
+          divisor = Math.floor(Math.random() * 10) + 11; // 11-20 arası bölen
+          correctAnswer = Math.floor(Math.random() * 30) + 20; // 20-49 arası sonuç
+        }
+
+        const dividend = divisor * correctAnswer;
+        const wrongAnswers = [];
+
+        let attempts = 0;
+        while (wrongAnswers.length < 3 && attempts < 50) {
+          attempts++;
+          const wrong = correctAnswer + Math.floor(Math.random() * 20) - 10;
+          if (wrong > 0 && wrong !== correctAnswer && !wrongAnswers.includes(wrong)) {
+            wrongAnswers.push(wrong);
+          }
+        }
+
+        while (wrongAnswers.length < 3) {
+          const fallback = wrongAnswers.length === 0 ? correctAnswer + 4 :
+                          wrongAnswers.length === 1 ? correctAnswer + 7 : correctAnswer - 4;
+          if (fallback > 0 && fallback !== correctAnswer && !wrongAnswers.includes(fallback)) {
+            wrongAnswers.push(fallback);
+          }
+        }
+
+        const answers = [correctAnswer, ...wrongAnswers].sort(() => Math.random() - 0.5);
+
+        qs.push({
+          dividend,
+          divisor,
+          correctAnswer,
+          answers
+        });
+      }
+    }
+
+    return qs;
+  };
+
   // localStorage'dan verileri yükle
   useEffect(() => {
     const saved = localStorage.getItem('diviGoKidsProgress');
@@ -281,9 +317,7 @@ const DiviGoKids = () => {
   }, [stageStars]);
 
   const startStage = (stage) => {
-    console.log('startStage called with stage:', stage, 'level:', currentLevel);
     const qs = generateQuestions(stage, currentLevel);
-    console.log('Generated questions:', qs.length, qs);
     setQuestions(qs);
     setCurrentStage(stage);
     setCurrentQuestion(0);
@@ -315,7 +349,7 @@ const DiviGoKids = () => {
         setShowFeedback(false);
       } else {
         const finalScore = isCorrect ? score + 1 : score;
-        const stars = calculateStars(finalScore);
+        const stars = finalScore >= 9 ? 3 : finalScore >= 7 ? 2 : finalScore >= 5 ? 1 : 0;
 
         const key = `level${currentLevel}_stage${currentStage}`;
         const currentStars = stageStars[key] || 0;
@@ -434,32 +468,40 @@ const DiviGoKids = () => {
   if (currentScreen === 'levels') {
     const levelInfo = [
       {
-        name: 'Level 1',
+        name: 'STARTER',
         desc: 'Einfache Division',
-        bgGradient: 'from-emerald-400 via-teal-400 to-cyan-400',
-        cardColor: 'from-emerald-500 to-teal-500',
-        emoji: '🌱'
+        bgGradient: 'from-lime-400 via-green-400 to-emerald-500',
+        cardGradient: 'from-lime-400 to-green-500',
+        glowColor: 'rgba(132, 204, 22, 0.4)',
+        emoji: '🌟',
+        icon: '🎯'
       },
       {
-        name: 'Level 2',
+        name: 'CHAMPION',
         desc: 'Zweistellige Zahlen',
-        bgGradient: 'from-blue-400 via-indigo-400 to-purple-400',
-        cardColor: 'from-blue-500 to-indigo-500',
-        emoji: '🚀'
+        bgGradient: 'from-cyan-400 via-blue-500 to-indigo-600',
+        cardGradient: 'from-cyan-400 to-blue-600',
+        glowColor: 'rgba(34, 211, 238, 0.4)',
+        emoji: '⚡',
+        icon: '🚀'
       },
       {
-        name: 'Level 3',
+        name: 'HERO',
         desc: 'Dreistellige Zahlen',
-        bgGradient: 'from-purple-400 via-pink-400 to-rose-400',
-        cardColor: 'from-purple-500 to-pink-500',
-        emoji: '⭐'
+        bgGradient: 'from-fuchsia-400 via-purple-500 to-pink-600',
+        cardGradient: 'from-fuchsia-400 to-purple-600',
+        glowColor: 'rgba(232, 121, 249, 0.4)',
+        emoji: '💎',
+        icon: '⭐'
       },
       {
-        name: 'Level 4',
-        desc: 'Fortgeschritten',
-        bgGradient: 'from-orange-400 via-red-400 to-pink-400',
-        cardColor: 'from-orange-500 to-red-500',
-        emoji: '🏆'
+        name: 'LEGEND',
+        desc: 'Meister Level!',
+        bgGradient: 'from-amber-400 via-orange-500 to-red-600',
+        cardGradient: 'from-amber-400 to-red-600',
+        glowColor: 'rgba(251, 191, 36, 0.4)',
+        emoji: '👑',
+        icon: '🏆'
       }
     ];
 
@@ -467,130 +509,182 @@ const DiviGoKids = () => {
 
     return (
       <div className={`min-h-screen bg-gradient-to-br ${currentLevelInfo.bgGradient} p-4 md:p-8 relative overflow-hidden`}>
-        {/* Arka plan dekoratif öğeler */}
+        {/* Animierte Hintergrund Elemente */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          {[...Array(8)].map((_, i) => (
+          {[...Array(15)].map((_, i) => (
             <div
-              key={i}
-              className="absolute bg-white rounded-full opacity-10"
+              key={`bg-${i}`}
+              className="absolute rounded-full"
               style={{
-                width: `${Math.random() * 150 + 100}px`,
-                height: `${Math.random() * 150 + 100}px`,
+                width: `${Math.random() * 200 + 100}px`,
+                height: `${Math.random() * 200 + 100}px`,
                 left: `${Math.random() * 100}%`,
                 top: `${Math.random() * 100}%`,
-                animation: `float ${Math.random() * 15 + 10}s ease-in-out infinite`,
+                background: `radial-gradient(circle, ${currentLevelInfo.glowColor} 0%, transparent 70%)`,
+                animation: `float ${Math.random() * 8 + 12}s ease-in-out infinite`,
                 animationDelay: `${Math.random() * 5}s`,
+                filter: 'blur(40px)',
               }}
             ></div>
+          ))}
+
+          {/* Sterne Animation */}
+          {[...Array(20)].map((_, i) => (
+            <div
+              key={`star-${i}`}
+              className="absolute text-white text-2xl opacity-60"
+              style={{
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+                animation: `float ${Math.random() * 6 + 8}s ease-in-out infinite`,
+                animationDelay: `${Math.random() * 3}s`,
+              }}
+            >
+              ✨
+            </div>
           ))}
         </div>
 
         <div className="relative z-10">
-          {/* Header */}
-          <div className="flex items-center justify-between mb-6 md:mb-8">
+          {/* Header mit mega Style */}
+          <div className="flex items-center justify-between mb-6 md:mb-10">
             <button
               onClick={() => {
                 playSound('click');
                 setCurrentScreen('home');
               }}
-              className="bg-white bg-opacity-30 backdrop-blur-md rounded-2xl p-3 md:p-4 shadow-xl hover:scale-110 transition-transform"
+              className="bg-white text-gray-800 rounded-2xl p-3 md:p-4 shadow-2xl hover:scale-110 active:scale-95 transition-all duration-300"
+              style={{
+                boxShadow: `0 0 30px ${currentLevelInfo.glowColor}`
+              }}
             >
-              <ArrowLeft size={24} className="text-white md:w-8 md:h-8" />
+              <ArrowLeft size={28} className="md:w-10 md:h-10" />
             </button>
 
-            <div className="bg-white bg-opacity-20 backdrop-blur-md rounded-3xl px-6 py-3 md:px-8 md:py-4 shadow-xl">
-              <div className="text-2xl md:text-3xl font-bold text-white text-center">
-                {currentLevelInfo.emoji} {currentLevelInfo.name}
-              </div>
-              <div className="text-sm md:text-lg text-white text-center opacity-90">
-                {currentLevelInfo.desc}
+            <div className="flex-1 mx-4">
+              <div className="bg-white bg-opacity-20 backdrop-blur-xl rounded-3xl px-6 py-4 md:px-10 md:py-6 shadow-2xl border-4 border-white text-center"
+                style={{
+                  boxShadow: `0 0 40px ${currentLevelInfo.glowColor}, inset 0 0 30px rgba(255, 255, 255, 0.2)`
+                }}
+              >
+                <div className="text-5xl md:text-7xl mb-2">
+                  {currentLevelInfo.emoji}
+                </div>
+                <div className="text-2xl md:text-4xl font-black text-white drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)] tracking-wider">
+                  {currentLevelInfo.name}
+                </div>
+                <div className="text-sm md:text-xl text-white font-bold opacity-90 mt-1">
+                  {currentLevelInfo.desc}
+                </div>
               </div>
             </div>
 
-            <div className="w-12 md:w-16"></div>
+            <div className="w-14 md:w-20"></div>
           </div>
 
-          {/* Stages Grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 md:gap-5 max-w-7xl mx-auto mb-8 md:mb-12">
+          {/* Stages Grid - Gaming Style */}
+          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3 md:gap-4 max-w-7xl mx-auto mb-8 md:mb-12">
             {[...Array(12)].map((_, i) => {
               const stageNum = i + 1;
               const stars = stageStars[`level${currentLevel}_stage${stageNum}`] || 0;
 
               return (
-                <button
+                <div
                   key={i}
-                  onClick={() => {
-                    playSound('click');
-                    startStage(stageNum);
-                  }}
-                  className="bg-white bg-opacity-85 backdrop-blur-xl rounded-3xl p-4 md:p-6 shadow-2xl hover:shadow-[0_0_40px_rgba(255,255,255,0.8)] hover:scale-110 hover:bg-opacity-95 active:scale-95 transition-all duration-300 flex flex-col items-center gap-2 md:gap-3 border-4 border-white"
+                  className="relative rounded-2xl md:rounded-3xl p-[4px] hover:scale-110 active:scale-95 transition-all duration-300 animate-[fadeIn_0.5s_ease-out]"
                   style={{
-                    boxShadow: '0 10px 40px 0 rgba(0, 0, 0, 0.3), inset 0 0 30px rgba(255, 255, 255, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.9)'
+                    background: `linear-gradient(135deg, ${
+                      currentLevel === 1 ? '#84cc16, #22c55e, #10b981' :
+                      currentLevel === 2 ? '#22d3ee, #3b82f6, #6366f1' :
+                      currentLevel === 3 ? '#e879f9, #a855f7, #ec4899' :
+                      '#fbbf24, #f97316, #ef4444'
+                    })`,
+                    boxShadow: `0 8px 30px ${currentLevelInfo.glowColor}, 0 0 20px ${currentLevelInfo.glowColor}`,
+                    animationDelay: `${i * 0.05}s`
                   }}
                 >
-                  <div className={`w-14 h-14 md:w-20 md:h-20 rounded-2xl md:rounded-3xl bg-gradient-to-br ${currentLevelInfo.cardColor} flex items-center justify-center shadow-2xl`}
-                    style={{
-                      boxShadow: '0 8px 25px rgba(0, 0, 0, 0.4), inset 0 -2px 10px rgba(0, 0, 0, 0.3), inset 0 2px 10px rgba(255, 255, 255, 0.3)'
+                  <button
+                    onClick={() => {
+                      playSound('click');
+                      startStage(stageNum);
                     }}
+                    className="w-full bg-gradient-to-br from-white to-gray-50 rounded-[14px] md:rounded-[22px] p-3 md:p-5 shadow-xl hover:shadow-2xl transition-all duration-300 flex flex-col items-center gap-2"
                   >
-                    <span className="text-3xl md:text-4xl font-bold text-white drop-shadow-[0_4px_8px_rgba(0,0,0,0.5)]">
-                      {stageNum}
-                    </span>
-                  </div>
+                    {/* Stage Nummer Box */}
+                    <div
+                      className={`w-14 h-14 md:w-20 md:h-20 rounded-xl md:rounded-2xl bg-gradient-to-br ${currentLevelInfo.cardGradient} flex items-center justify-center shadow-2xl relative overflow-hidden`}
+                      style={{
+                        boxShadow: `0 8px 25px rgba(0, 0, 0, 0.3), 0 0 20px ${currentLevelInfo.glowColor}`
+                      }}
+                    >
+                      <div className="absolute inset-0 bg-gradient-to-t from-black opacity-20"></div>
+                      <span className="relative text-3xl md:text-5xl font-black text-white drop-shadow-[0_4px_8px_rgba(0,0,0,0.5)] tracking-tight">
+                        {stageNum}
+                      </span>
+                    </div>
 
-                  <div className="text-sm md:text-base font-bold text-gray-800 drop-shadow-sm">
-                    Stage {stageNum}
-                  </div>
-
-                  <div className="flex gap-1 md:gap-1.5">
-                    {[1, 2, 3].map((s) => (
-                      <div key={s} className="relative">
-                        <Star
-                          size={window.innerWidth < 768 ? 20 : 26}
-                          className={`${
-                            s <= stars
-                              ? 'fill-yellow-400 text-yellow-500'
-                              : 'text-gray-300'
-                          } transition-all duration-300`}
-                          style={s <= stars ? {
-                            filter: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3)) drop-shadow(0 0 8px rgba(255, 215, 0, 0.6))',
-                            transform: 'translateZ(10px)'
-                          } : {
-                            filter: 'drop-shadow(0 2px 3px rgba(0, 0, 0, 0.2))'
-                          }}
-                        />
-                        {s <= stars && (
-                          <div
-                            className="absolute inset-0 rounded-full"
-                            style={{
-                              background: 'radial-gradient(circle, rgba(255, 215, 0, 0.4) 0%, transparent 70%)',
-                              transform: 'scale(1.5)',
-                              pointerEvents: 'none'
+                    {/* Stars - Größer und 3D */}
+                    <div className="flex gap-0.5 md:gap-1 mt-1">
+                      {[1, 2, 3].map((s) => (
+                        <div key={s} className="relative">
+                          <Star
+                            size={window.innerWidth < 768 ? 16 : 22}
+                            className={`${
+                              s <= stars
+                                ? 'fill-amber-400 text-amber-500'
+                                : 'text-gray-300'
+                            } transition-all duration-300`}
+                            style={s <= stars ? {
+                              filter: 'drop-shadow(0 3px 6px rgba(0, 0, 0, 0.4)) drop-shadow(0 0 12px rgba(251, 191, 36, 0.8))',
+                            } : {
+                              filter: 'drop-shadow(0 2px 3px rgba(0, 0, 0, 0.2))'
                             }}
                           />
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </button>
+                          {s <= stars && (
+                            <div
+                              className="absolute inset-0 rounded-full animate-pulse"
+                              style={{
+                                background: 'radial-gradient(circle, rgba(251, 191, 36, 0.5) 0%, transparent 70%)',
+                                transform: 'scale(1.8)',
+                                pointerEvents: 'none'
+                              }}
+                            />
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </button>
+                </div>
               );
             })}
           </div>
 
-          {/* Level Navigation */}
-          <div className="flex justify-center items-center gap-4 md:gap-8">
+          {/* Level Navigation - Modern Gaming Style */}
+          <div className="flex justify-center items-center gap-4 md:gap-6">
             <button
               onClick={() => {
                 playSound('click');
                 setCurrentLevel(Math.max(1, currentLevel - 1));
               }}
-              className={`bg-white bg-opacity-30 backdrop-blur-md rounded-full p-3 md:p-4 shadow-xl transition-all duration-300 ${currentLevel === 1 ? 'opacity-30' : 'hover:scale-110 hover:bg-opacity-40'}`}
+              className={`bg-white rounded-2xl p-3 md:p-5 shadow-2xl transition-all duration-300 ${
+                currentLevel === 1
+                  ? 'opacity-30 cursor-not-allowed'
+                  : 'hover:scale-110 active:scale-95'
+              }`}
               disabled={currentLevel === 1}
+              style={{
+                boxShadow: currentLevel === 1 ? 'none' : `0 8px 30px ${currentLevelInfo.glowColor}`
+              }}
             >
-              <ArrowLeft size={28} className="text-white md:w-10 md:h-10" />
+              <ArrowLeft size={32} className="text-gray-800 md:w-12 md:h-12" />
             </button>
 
-            <div className="flex gap-2 md:gap-3 items-center bg-white bg-opacity-20 backdrop-blur-md rounded-full px-6 py-3 md:px-8 md:py-4 shadow-xl">
+            {/* Level Dots - Größer und colorful */}
+            <div className="flex gap-3 md:gap-4 items-center bg-white bg-opacity-20 backdrop-blur-xl rounded-full px-6 py-4 md:px-10 md:py-5 shadow-2xl border-2 border-white"
+              style={{
+                boxShadow: `0 0 30px ${currentLevelInfo.glowColor}`
+              }}
+            >
               {[1, 2, 3, 4].map((level) => (
                 <button
                   key={level}
@@ -598,12 +692,17 @@ const DiviGoKids = () => {
                     playSound('click');
                     setCurrentLevel(level);
                   }}
-                  className={`w-3 h-3 md:w-5 md:h-5 rounded-full transition-all duration-300 ${
+                  className={`transition-all duration-300 rounded-full flex items-center justify-center font-bold ${
                     currentLevel === level
-                      ? 'bg-white scale-125 shadow-lg'
-                      : 'bg-white bg-opacity-40 hover:bg-opacity-60'
+                      ? 'w-10 h-10 md:w-14 md:h-14 bg-white text-gray-800 scale-110 shadow-xl text-lg md:text-2xl'
+                      : 'w-8 h-8 md:w-10 md:h-10 bg-white bg-opacity-40 hover:bg-opacity-60 text-white text-sm md:text-lg'
                   }`}
-                ></button>
+                  style={currentLevel === level ? {
+                    boxShadow: `0 0 20px ${currentLevelInfo.glowColor}`
+                  } : {}}
+                >
+                  {level}
+                </button>
               ))}
             </div>
 
@@ -612,10 +711,17 @@ const DiviGoKids = () => {
                 playSound('click');
                 setCurrentLevel(Math.min(4, currentLevel + 1));
               }}
-              className={`bg-white bg-opacity-30 backdrop-blur-md rounded-full p-3 md:p-4 shadow-xl transition-all duration-300 ${currentLevel === 4 ? 'opacity-30' : 'hover:scale-110 hover:bg-opacity-40'}`}
+              className={`bg-white rounded-2xl p-3 md:p-5 shadow-2xl transition-all duration-300 ${
+                currentLevel === 4
+                  ? 'opacity-30 cursor-not-allowed'
+                  : 'hover:scale-110 active:scale-95'
+              }`}
               disabled={currentLevel === 4}
+              style={{
+                boxShadow: currentLevel === 4 ? 'none' : `0 8px 30px ${currentLevelInfo.glowColor}`
+              }}
             >
-              <ArrowRight size={28} className="text-white md:w-10 md:h-10" />
+              <ArrowRight size={32} className="text-gray-800 md:w-12 md:h-12" />
             </button>
           </div>
         </div>
@@ -624,14 +730,7 @@ const DiviGoKids = () => {
   }
 
   // Quiz Screen
-  if (currentScreen === 'quiz') {
-    if (questions.length === 0) {
-      return (
-        <div className="min-h-screen bg-gradient-to-b from-purple-300 to-pink-200 flex items-center justify-center">
-          <div className="text-2xl text-white">Laden...</div>
-        </div>
-      );
-    }
+  if (currentScreen === 'quiz' && questions.length > 0) {
     const q = questions[currentQuestion];
 
     return (
@@ -736,7 +835,7 @@ const DiviGoKids = () => {
 
   // Ergebnis Screen
   if (currentScreen === 'result') {
-    const stars = calculateStars(score);
+    const stars = score >= 9 ? 3 : score >= 7 ? 2 : score >= 5 ? 1 : 0;
 
     return (
       <div className="min-h-screen bg-gradient-to-b from-yellow-300 to-orange-300 flex items-center justify-center p-4 md:p-8 relative overflow-hidden">
